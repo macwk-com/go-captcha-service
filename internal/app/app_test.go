@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/wenlng/go-captcha-service/internal/config"
 	"go.uber.org/zap"
 )
 
@@ -17,6 +19,21 @@ func TestNewCacheCircuitBreakerUsesServiceName(t *testing.T) {
 	if got := breaker.Name(); got != serviceName {
 		t.Fatalf("circuit breaker name = %q, want %q", got, serviceName)
 	}
+}
+
+func TestMergeWithFlagsCacheKeyPrefix(t *testing.T) {
+	const configPrefix = "MACWK_CAPTCHA_DATA:"
+
+	cfg := config.Config{CacheKeyPrefix: configPrefix}
+	merged := config.MergeWithFlags(cfg, map[string]interface{}{
+		"cache-key-prefix": "",
+	})
+	assert.Equal(t, configPrefix, merged.CacheKeyPrefix)
+
+	merged = config.MergeWithFlags(cfg, map[string]interface{}{
+		"cache-key-prefix": "OVERRIDE_CAPTCHA_DATA:",
+	})
+	assert.Equal(t, "OVERRIDE_CAPTCHA_DATA:", merged.CacheKeyPrefix)
 }
 
 func TestSetupHealthCheck(t *testing.T) {

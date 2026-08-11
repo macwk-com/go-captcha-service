@@ -600,6 +600,7 @@ Cache Configuration:
 * `CACHE_ADDRS`: Cache service address list.
 * `CACHE_USERNAME`: Cache service authentication username.
 * `CACHE_PASSWORD`: Cache service authentication password.
+* `CACHE_KEY_PREFIX`: Cache key prefix; overrides `cache_key_prefix` from the configuration file when set.
 
 Dynamic Configuration Service:
 * `ENABLE_DYNAMIC_CONFIG`: Enables dynamic configuration (`true` to enable).

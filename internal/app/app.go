@@ -88,7 +88,7 @@ func NewApp() (*App, error) {
 	cachePassword := flag.String("cache-password", "", "Cache service password")
 	cacheDB := flag.String("cache-dbb", "0", "Cache service db name")
 	cacheTTL := flag.Int("cache-ttl", 0, "CacheManager TTL in seconds")
-	cacheKeyPrefix := flag.String("cache-key-prefix", "GO_CAPTCHA_DATA:", "Key prefix for cache")
+	cacheKeyPrefix := flag.String("cache-key-prefix", "", "Key prefix for cache")
 
 	enableDynamicConfig := flag.String("enable-dynamic-config", "false", "Enable dynamic config")
 	dynamicConfigType := flag.String("dynamic-config-type", "", "Service discovery: etcd, zookeeper, consul, nacos")
@@ -177,6 +177,9 @@ func NewApp() (*App, error) {
 	}
 	if v, exists := os.LookupEnv("CACHE_DB"); exists {
 		*cacheDB = v
+	}
+	if v, exists := os.LookupEnv("CACHE_KEY_PREFIX"); exists {
+		*cacheKeyPrefix = v
 	}
 	if v, exists := os.LookupEnv("LOG_LEVEL"); exists {
 		*logLevel = v

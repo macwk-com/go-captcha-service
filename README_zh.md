@@ -625,6 +625,7 @@ server {
 * CACHE_USERNAME: 缓存服务认证用户名。
 * CACHE_PASSWORD: 缓存服务认证密码。
 * CACHE_DB: 缓存服务DB(redis)。
+* CACHE_KEY_PREFIX: 缓存键前缀；设置后会覆盖配置文件中的 `cache_key_prefix`。
 
 动态配置服务：
 * ENABLE_DYNAMIC_CONFIG: 是否启用动态配置（值为 true 表示启用）。
@@ -1180,4 +1181,3 @@ server {
 Go Captcha Service source code is licensed under the Apache Licence, Version 2.0 [http://www.apache.org/licenses/LICENSE-2.0.html](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 <br/>
-
