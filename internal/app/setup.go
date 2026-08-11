@@ -307,16 +307,20 @@ func setupLoggerLevel(logger *zap.Logger, level string) {
 // setupHealthCheck performs a health check on HTTP and gRPC servers
 func setupHealthCheck(httpAddr, grpcAddr string) error {
 	resp, err := http.Get("http://" + httpAddr + "/status/health")
-	if err != nil || resp.StatusCode != http.StatusNotFound {
-		return fmt.Errorf("HTTP health check failed: %v", err)
+	if err != nil {
+		return fmt.Errorf("HTTP health check failed: %w", err)
 	}
-	resp.Body.Close()
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("HTTP health check failed: status %d", resp.StatusCode)
+	}
 
 	conn, err := net.DialTimeout("tcp", grpcAddr, 1*time.Second)
 	if err != nil {
-		return fmt.Errorf("gRPC health check failed: %v", err)
+		return fmt.Errorf("gRPC health check failed: %w", err)
 	}
-	conn.Close()
+	defer conn.Close()
 
 	return nil
 }

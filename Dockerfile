@@ -24,6 +24,6 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 EXPOSE 8080 50051
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD ["/app/go-captcha-service", "--health-check"] || exit 1
+  CMD ["/app/go-captcha-service", "--health-check=true"]
 
 CMD ["/app/go-captcha-service"]

@@ -49,6 +49,26 @@ type App struct {
 	captcha        *gocaptcha.GoCaptcha
 }
 
+func newCacheCircuitBreaker(serviceName string, logger *zap.Logger) *gobreaker.CircuitBreaker {
+	return gobreaker.NewCircuitBreaker(gobreaker.Settings{
+		Name:        serviceName,
+		MaxRequests: 100,
+		Interval:    60 * time.Second,
+		Timeout:     10 * time.Second,
+		ReadyToTrip: func(counts gobreaker.Counts) bool {
+			return counts.ConsecutiveFailures > 5 ||
+				(counts.TotalFailures > 10 && float64(counts.TotalFailures)/float64(counts.Requests) > 0.5)
+		},
+		OnStateChange: func(name string, from gobreaker.State, to gobreaker.State) {
+			logger.Info("[App] Circuit breaker state changed",
+				zap.String("name", name),
+				zap.String("from", from.String()),
+				zap.String("to", to.String()),
+			)
+		},
+	})
+}
+
 // NewApp initializes the application
 func NewApp() (*App, error) {
 
@@ -296,23 +316,7 @@ func NewApp() (*App, error) {
 	})
 
 	// Initialize circuit breaker with optimized settings for large-scale clusters
-	cacheBreaker := gobreaker.NewCircuitBreaker(gobreaker.Settings{
-		Name:        *serviceName,
-		MaxRequests: 100,
-		Interval:    60 * time.Second,
-		Timeout:     10 * time.Second,
-		ReadyToTrip: func(counts gobreaker.Counts) bool {
-			return counts.ConsecutiveFailures > 5 ||
-				(counts.TotalFailures > 10 && float64(counts.TotalFailures)/float64(counts.Requests) > 0.5)
-		},
-		OnStateChange: func(name string, from gobreaker.State, to gobreaker.State) {
-			logger.Info("[App] Circuit breaker state changed",
-				zap.String("name", name),
-				zap.String("from", from.String()),
-				zap.String("to", to.String()),
-			)
-		},
-	})
+	cacheBreaker := newCacheCircuitBreaker(cfg.ServiceName, logger)
 
 	// Setup cache
 	cacheMgr, err := setupCacheManager(dc, logger)
